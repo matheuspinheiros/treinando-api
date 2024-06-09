@@ -35,4 +35,5 @@ public class ErrorResponse {
 
         this.errors.add(new ValidationError(field, message));
     }
+
 }
