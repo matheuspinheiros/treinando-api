@@ -21,12 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_MATCHERS = {
-            "/"
+            "/**"
     };
 
     private static final String[] PUBLIC_MATCHERS_POST = {
-            "/user",
-            "/login"
+            "/user/**",
+            "/login/**"
     };
 
     @Bean
@@ -41,6 +41,16 @@ public class SecurityConfig {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        // http.cors(withDefaults()).csrf(csrf -> csrf.disable());
+
+        // http.authorizeRequests(requests -> requests
+        // .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
+        // .antMatchers(PUBLIC_MATCHERS).permitAll()
+        // .anyRequest().authenticated());
+
+        // http.sessionManagement(management ->
+        // management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
     }
 
@@ -51,6 +61,7 @@ public class SecurityConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+
     }
 
     @Bean
