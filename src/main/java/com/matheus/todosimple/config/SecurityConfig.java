@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.matheus.todosimple.security.JWTAuthenticationFilter;
 import com.matheus.todosimple.security.JWTUtil;
 
 @Configuration
@@ -44,6 +45,7 @@ public class SecurityConfig {
                         "/login/**"
         };
 
+        // TODAS AS REQUISIÇÕES CAEM ANTES NESTE METÓDO
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -60,7 +62,10 @@ public class SecurityConfig {
                 http.authorizeHttpRequests()
                                 .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
                                 .antMatchers(PUBLIC_MATCHERS).permitAll()
-                                .anyRequest().authenticated();
+                                .anyRequest().authenticated().and()
+                                .authenticationManager(authenticationManager);
+
+                http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, jwtUtil));
 
                 http.sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
