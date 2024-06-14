@@ -1,8 +1,10 @@
 package com.matheus.todosimple.security;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,21 +41,23 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             Authentication authentication = this.authenticationManager.authenticate(authToken);
             return authentication;
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     // autenticação concluida com sucesso!
     @Override
-    protected void successfulAuthentication(HttpServletRequest request,
-            HttpServletResponse response, FilterChain filterChain, Authentication authentication) {
+    protected void successfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain,
+            Authentication authentication) throws IOException, ServletException {
         UserSpringSecurity userSpringSecurity = (UserSpringSecurity) authentication.getPrincipal();
         String username = userSpringSecurity.getUsername();
         String token = this.jwtUtil.generateToken(username);
         response.addHeader("Authorization", "Bearer " + token);
         response.addHeader("acess-control-expose-headers", "Authorization");
-
     }
 
 }
