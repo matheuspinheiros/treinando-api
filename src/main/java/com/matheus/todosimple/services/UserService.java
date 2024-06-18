@@ -4,14 +4,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.matheus.todosimple.models.User;
+import com.matheus.todosimple.models.dto.UserCreateDTO;
+import com.matheus.todosimple.models.dto.UserUpdateDTO;
 import com.matheus.todosimple.models.enums.ProfileEnum;
 import com.matheus.todosimple.repositories.UserRepository;
+import com.matheus.todosimple.security.UserSpringSecurity;
 import com.matheus.todosimple.services.exceptions.DataBindingViolationException;
 import com.matheus.todosimple.services.exceptions.ObjectNotFoundException;
 
@@ -55,6 +61,28 @@ public class UserService {
         } catch (Exception e) {
             throw new DataBindingViolationException("Não é possível excluir o usuário pois há entidades relacionadas!");
         }
+    }
+
+    public static UserSpringSecurity authenticated() {
+        try {
+            return (UserSpringSecurity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public User fromDTO(@Valid UserCreateDTO obj) {
+        User user = new User();
+        user.setUsername(obj.getUsername());
+        user.setPassword(obj.getPassword());
+        return user;
+    }
+
+    public User fromDTO(@Valid UserUpdateDTO obj) {
+        User user = new User();
+        user.setId(obj.getId());
+        user.setPassword(obj.getPassword());
+        return user;
     }
 
 }

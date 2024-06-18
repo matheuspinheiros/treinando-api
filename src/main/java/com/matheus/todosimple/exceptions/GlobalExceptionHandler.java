@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.validation.FieldError;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.matheus.todosimple.services.exceptions.AuthorizationException;
 import com.matheus.todosimple.services.exceptions.DataBindingViolationException;
 import com.matheus.todosimple.services.exceptions.ObjectNotFoundException;
 
@@ -117,6 +119,40 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
                                 request);
         }
 
+        @ExceptionHandler(AuthenticationException.class)
+        @ResponseStatus(HttpStatus.FORBIDDEN)
+        public ResponseEntity<Object> handleAuthenticationException(
+                        AuthenticationException authenticationException,
+                        WebRequest request) {
+                log.error("Authentication error", authenticationException);
+                return buildErrorResponse(
+                                authenticationException,
+                                HttpStatus.FORBIDDEN,
+                                request);
+        }
+
+        @ExceptionHandler(AccessDeniedException.class)
+        @ResponseStatus(HttpStatus.FORBIDDEN)
+        public ResponseEntity<Object> handleAccessDeniedException(
+                        AccessDeniedException accessDeniedException,
+                        WebRequest request) {
+                log.error("Authorization error", accessDeniedException);
+                return buildErrorResponse(
+                                accessDeniedException,
+                                HttpStatus.FORBIDDEN,
+                                request);
+        }
+
+        public ResponseEntity<Object> handleAuthorizationException(
+                        AuthorizationException authorizationException,
+                        WebRequest request) {
+                log.error("Authorization error", authorizationException);
+                return buildErrorResponse(
+                                authorizationException,
+                                HttpStatus.FORBIDDEN,
+                                request);
+        }
+
         private ResponseEntity<Object> buildErrorResponse(
                         Exception exception,
                         HttpStatus httpStatus,
@@ -138,12 +174,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
         }
 
         @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+        public void onAuthenticationFailure(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
                         AuthenticationException exception) throws IOException, ServletException {
                 Integer status = HttpStatus.UNAUTHORIZED.value();
                 response.setStatus(status);
                 response.setContentType("application/json");
-                ErrorResponse errorResponse = new ErrorResponse(status, "Usuário ou senha invalidos.");
+                ErrorResponse errorResponse = new ErrorResponse(status, "Username or password are invalid");
                 response.getWriter().append(errorResponse.toJson());
         }
 
