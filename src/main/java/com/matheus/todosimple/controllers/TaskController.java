@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.matheus.todosimple.models.Task;
+import com.matheus.todosimple.models.projection.TaskProjection;
 import com.matheus.todosimple.services.TaskService;
-import com.matheus.todosimple.services.UserService;
 
 @RestController
 @RequestMapping("/task")
@@ -30,9 +30,6 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @Autowired
-    private UserService userService;
-
     @GetMapping("/{id}")
     public ResponseEntity<Task> findById(@PathVariable Long id) {
 
@@ -41,12 +38,9 @@ public class TaskController {
         return ResponseEntity.ok(obj);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Task>> findAllByUserId(@PathVariable Long userId) {
-
-        this.userService.findById(userId);
-
-        List<Task> objs = this.taskService.findAllByUserId(userId);
+    @GetMapping("/user")
+    public ResponseEntity<List<TaskProjection>> findAllByUser() {
+        List<TaskProjection> objs = this.taskService.findAllByUser();
 
         return ResponseEntity.ok().body(objs);
     }
