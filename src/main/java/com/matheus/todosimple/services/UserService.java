@@ -1,5 +1,6 @@
 package com.matheus.todosimple.services;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,6 +19,7 @@ import com.matheus.todosimple.models.dto.UserUpdateDTO;
 import com.matheus.todosimple.models.enums.ProfileEnum;
 import com.matheus.todosimple.repositories.UserRepository;
 import com.matheus.todosimple.security.UserSpringSecurity;
+import com.matheus.todosimple.services.exceptions.AuthorizationException;
 import com.matheus.todosimple.services.exceptions.DataBindingViolationException;
 import com.matheus.todosimple.services.exceptions.ObjectNotFoundException;
 
@@ -31,6 +33,12 @@ public class UserService {
     private UserRepository userRepository;
 
     public User findById(Long id) {
+        // verificar se o usuário está logado
+        UserSpringSecurity userSpringSecurity = authenticated();
+        if (!Objects.nonNull(userSpringSecurity)
+                || !userSpringSecurity.hasRole(ProfileEnum.ADMIN) && !id.equals(userSpringSecurity.getId()))
+            throw new AuthorizationException("Acesso negado!");
+
         Optional<User> user = this.userRepository.findById(id);
         return user.orElseThrow(() -> new ObjectNotFoundException(
                 "Usuário não encontrado! Id: " + id + ", Tipo: " + User.class.getName()));
