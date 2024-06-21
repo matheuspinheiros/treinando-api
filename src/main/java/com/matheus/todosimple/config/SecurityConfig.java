@@ -43,7 +43,8 @@ public class SecurityConfig {
 
         private static final String[] PUBLIC_MATCHERS_POST = {
                         "/user/**",
-                        "/login/**"
+                        "/login/**",
+                        "/task/**"
         };
 
         // TODAS AS REQUISIÇÕES CAEM ANTES NESTE METÓDO
@@ -66,8 +67,8 @@ public class SecurityConfig {
                                 .anyRequest().authenticated().and()
                                 .authenticationManager(authenticationManager);
 
-                http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, jwtUtil));
-                http.addFilter(new JWTAuthorizationFilter(this.authenticationManager, jwtUtil,
+                http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, this.jwtUtil));
+                http.addFilter(new JWTAuthorizationFilter(this.authenticationManager, this.jwtUtil,
                                 this.userDetailsService));
 
                 http.sessionManagement(session -> session
